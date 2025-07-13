@@ -1,13 +1,10 @@
 {
   "functions": {
-    "api/*.js": {
+    "api/get-count.js": {
+      "runtime": "@vercel/node@20"
+    },
+    "api/increment-count.js": {
       "runtime": "@vercel/node@20"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
-  ]
+  }
 }
