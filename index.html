@@ -870,11 +870,6 @@ Sincerely,
         }
 
         async function sendEmailViaFormspree(recipientType, subject, body, senderName, senderEmail) {
-            if (FORMSPREE_FORM_ID === 'YOUR_FORMSPREE_FORM_ID') {
-                alert('⚠️ Formspree not configured yet! Please add your Formspree Form ID to the code.');
-                return;
-            }
-
             try {
                 // Show loading state
                 const button = event.target;
@@ -886,36 +881,46 @@ Sincerely,
                 const decodedSubject = decodeURIComponent(subject);
                 const decodedBody = decodeURIComponent(body);
 
-                // Send email via Formspree
-                const response = await fetch(`https://formspree.io/f/${FORMSPREE_FORM_ID}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: senderName,
-                        email: senderEmail,
-                        _replyto: senderEmail,
-                        _subject: decodedSubject,
-                        message: decodedBody,
-                        recipients: recipientEmails.join(', '),
-                        recipient_type: recipientType,
-                        // For Formspree to send to multiple recipients
-                        _cc: recipientEmails.slice(1).join(','), // CC the rest
-                        _to: recipientEmails[0] // Primary recipient
-                    })
-                });
+                // Send separate email to each recipient for better delivery
+                let successCount = 0;
+                
+                for (const recipientEmail of recipientEmails) {
+                    try {
+                        const response = await fetch(`https://formspree.io/f/${FORMSPREE_FORM_ID}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                // This tells Formspree to send TO this email, not notify you
+                                _to: recipientEmail,
+                                _replyto: senderEmail,
+                                _subject: decodedSubject,
+                                message: decodedBody,
+                                name: senderName,
+                                email: senderEmail,
+                                recipient_type: recipientType,
+                                // Formspree will send this message TO the _to address
+                                _format: 'plain'
+                            })
+                        });
 
-                if (response.ok) {
+                        if (response.ok) {
+                            successCount++;
+                        }
+                    } catch (error) {
+                        console.error(`Failed to send to ${recipientEmail}:`, error);
+                    }
+                }
+
+                if (successCount > 0) {
                     // Success!
                     button.innerHTML = '✅ Sent!';
                     button.style.backgroundColor = '#28a745';
                     
-                    showSuccessNotification(recipientType, recipientEmails.length);
-                    
-                    // Don't re-enable button to prevent double-sending
+                    showSuccessNotification(recipientType, successCount);
                 } else {
-                    throw new Error('Failed to send email');
+                    throw new Error('Failed to send to any recipients');
                 }
 
             } catch (error) {
