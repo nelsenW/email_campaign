@@ -492,7 +492,6 @@
     <script>
         // Configuration - UPDATE THESE WITH YOUR ACTUAL VALUES
         const API_BASE = 'https://email-campaign-nine.vercel.app/api'; 
-        const FORMSPREE_FORM_ID = 'mnqrynpy'; // Your actual Formspree form ID
         
         let currentData = { count: 0, goal: 100, percentage: 0 };
         
@@ -828,7 +827,7 @@ Sincerely,
                         <strong>Subject:</strong> ${template.subject}
                     </div>
                     <div class="email-body">${body.replace(/\n/g, '<br>')}</div>
-                    <button class="send-email-button" onclick="sendEmailViaFormspree('${recipient.value}', '${encodeURIComponent(template.subject)}', '${encodeURIComponent(body)}', '${name}', '${email}')">
+                    <button class="send-email-button" onclick="sendEmailViaWebmail('${recipient.value}', '${encodeURIComponent(template.subject)}', '${encodeURIComponent(body)}', '${name}', '${email}')">
                         📧 Send Email
                     </button>
                 `;
@@ -863,10 +862,22 @@ Sincerely,
                 'school_board': 'childersg@wataugaschools.org, fenwickj@wataugaschools.org, hegea@wataugaschools.org, idola@wataugaschools.org, lloydc@wataugaschools.org',
                 'commissioners': 'Braxton.Eggers@watgov.org, Todd.Castle@watgov.org, Emily.Greene@watgov.org, Tim.Hodges@watgov.org, Ronnie.Marsh@watgov.org',
                 'representatives': 'Ray.Pickett@ncleg.gov, Ralph.Hise@ncleg.gov, communications@dpi.nc.gov',
-                'mayor': 'mayor@townofboone.net',
+                'mayor': 'tim.futrelle@townofboone.net',
                 'media': 'moss.brennan@wataugademocrat.com'
             };
             return emails[recipientType] || 'Unknown';
+        }
+
+        function getRecipientEmailAddresses(recipientType, senderEmail) {
+            const emailLists = {
+                'test_email': ['thehackersapprentice@gmail.com'],
+                'school_board': ['childersg@wataugaschools.org', 'fenwickj@wataugaschools.org', 'hegea@wataugaschools.org', 'idola@wataugaschools.org', 'lloydc@wataugaschools.org'],
+                'commissioners': ['Braxton.Eggers@watgov.org', 'Todd.Castle@watgov.org', 'Emily.Greene@watgov.org', 'Tim.Hodges@watgov.org', 'Ronnie.Marsh@watgov.org'],
+                'representatives': ['Ray.Pickett@ncleg.gov', 'Ralph.Hise@ncleg.gov', 'communications@dpi.nc.gov'],
+                'mayor': ['tim.futrelle@townofboone.net'],
+                'media': ['moss.brennan@wataugademocrat.com']
+            };
+            return emailLists[recipientType] || [];
         }
 
         async function sendEmailViaFormspree(recipientType, subject, body, senderName, senderEmail) {
@@ -960,48 +971,28 @@ Sincerely,
             }
         }
 
-        function getRecipientEmailAddresses(recipientType, senderEmail) {
-            const emailLists = {
-                'test_email': ['thehackersapprentice@gmail.com'],
-                'school_board': ['childersg@wataugaschools.org', 'fenwickj@wataugaschools.org', 'hegea@wataugaschools.org', 'idola@wataugaschools.org', 'lloydc@wataugaschools.org'],
-                'commissioners': ['Braxton.Eggers@watgov.org', 'Todd.Castle@watgov.org', 'Emily.Greene@watgov.org', 'Tim.Hodges@watgov.org', 'Ronnie.Marsh@watgov.org'],
-                'representatives': ['Ray.Pickett@ncleg.gov', 'Ralph.Hise@ncleg.gov', 'communications@dpi.nc.gov'],
-                'mayor': ['mayor@townofboone.net'],
-                'media': ['moss.brennan@wataugademocrat.com']
+        function getRecipientEmails(recipientType) {
+            const emails = {
+                'test_email': 'thehackersapprentice@gmail.com',
+                'school_board': 'childersg@wataugaschools.org, fenwickj@wataugaschools.org, hegea@wataugaschools.org, idola@wataugaschools.org, lloydc@wataugaschools.org',
+                'commissioners': 'Braxton.Eggers@watgov.org, Todd.Castle@watgov.org, Emily.Greene@watgov.org, Tim.Hodges@watgov.org, Ronnie.Marsh@watgov.org',
+                'representatives': 'Ray.Pickett@ncleg.gov, Ralph.Hise@ncleg.gov, communications@dpi.nc.gov',
+                'mayor': 'mayor@townofboone.net',
+                'media': 'moss.brennan@wataugademocrat.com'
             };
-            return emailLists[recipientType] || [];
+            return emails[recipientType] || 'Unknown';
         }
 
-        function showSuccessNotification(recipientType, emailCount) {
-            const recipientName = getRecipientName(recipientType);
-            const confirmationHtml = `
-                <div style="position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; max-width: 400px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 24px;">✅</span>
-                        <div>
-                            <strong>Email Sent Successfully!</strong><br>
-                            <small>Sent to ${recipientName} (${emailCount} recipient${emailCount > 1 ? 's' : ''})</small>
-                        </div>
-                        <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; margin-left: auto;">×</button>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', confirmationHtml);
-            
-            // Auto-remove after 7 seconds
-            setTimeout(() => {
-                const notification = document.querySelector('[style*="position: fixed"][style*="top: 20px"]');
-                if (notification) notification.remove();
-            }, 7000);
-        }
-
-        function showMailtoFallback(recipientType, subject, body, senderEmail) {
-            const emails = getRecipientEmailAddresses(recipientType, senderEmail);
-            const mailtoLink = `mailto:${emails.join(',')}?subject=${subject}&body=${body}`;
-            
-            if (confirm('Would you like to try opening your email client as a backup?')) {
-                window.location.href = mailtoLink;
-            }
+        function getRecipientEmails(recipientType) {
+            const emails = {
+                'test_email': 'thehackersapprentice@gmail.com',
+                'school_board': 'childersg@wataugaschools.org, fenwickj@wataugaschools.org, hegea@wataugaschools.org, idola@wataugaschools.org, lloydc@wataugaschools.org',
+                'commissioners': 'Braxton.Eggers@watgov.org, Todd.Castle@watgov.org, Emily.Greene@watgov.org, Tim.Hodges@watgov.org, Ronnie.Marsh@watgov.org',
+                'representatives': 'Ray.Pickett@ncleg.gov, Ralph.Hise@ncleg.gov, communications@dpi.nc.gov',
+                'mayor': 'mayor@townofboone.net',
+                'media': 'moss.brennan@wataugademocrat.com'
+            };
+            return emails[recipientType] || 'Unknown';
         }
     </script>
 </body>
