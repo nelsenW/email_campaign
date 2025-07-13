@@ -870,9 +870,10 @@ Sincerely,
         }
 
         async function sendEmailViaFormspree(recipientType, subject, body, senderName, senderEmail) {
+            let button;
             try {
                 // Show loading state
-                const button = event.target;
+                button = event.target;
                 const originalText = button.innerHTML;
                 button.innerHTML = '⏳ Sending...';
                 button.disabled = true;
@@ -892,7 +893,7 @@ Sincerely,
                     try {
                         console.log(`Sending to: ${recipientEmail}`);
                         
-                        // Create FormData instead of JSON for Formspree
+                        // Create FormData for Formspree
                         const formData = new FormData();
                         formData.append('_to', recipientEmail);
                         formData.append('_replyto', senderEmail);
@@ -901,15 +902,19 @@ Sincerely,
                         formData.append('name', senderName);
                         formData.append('email', senderEmail);
                         formData.append('recipient_type', recipientType);
+                        // Prevent redirect to thanks page
+                        formData.append('_next', 'https://email-campaign-nine.vercel.app/');
 
                         const response = await fetch(`https://formspree.io/f/${FORMSPREE_FORM_ID}`, {
                             method: 'POST',
-                            body: formData // Send as FormData, not JSON
+                            body: formData,
+                            redirect: 'manual' // Don't follow redirects
                         });
 
                         console.log(`Response status for ${recipientEmail}:`, response.status);
                         
-                        if (response.ok) {
+                        // Formspree returns 302 redirect on success, which we're treating as manual
+                        if (response.ok || response.status === 302) {
                             successCount++;
                             console.log(`Success sending to ${recipientEmail}`);
                         } else {
@@ -940,8 +945,10 @@ Sincerely,
                 
                 // Show error and restore button with more details
                 alert(`❌ Failed to send email: ${error.message}\n\nCheck browser console for details. Try mailto fallback?`);
-                button.innerHTML = originalText;
-                button.disabled = false;
+                if (button) {
+                    button.innerHTML = button.innerHTML.includes('⏳') ? '📧 Send Email' : button.innerHTML;
+                    button.disabled = false;
+                }
                 
                 // Offer mailto fallback
                 if (confirm('Would you like to try the mailto fallback instead?')) {
