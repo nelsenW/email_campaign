@@ -1,6 +1,13 @@
 {
-  "buildCommand": "echo 'No build needed'",
-  "outputDirectory": ".",
-  "devCommand": "echo 'No dev command'",
-  "installCommand": "npm install"
+  "functions": {
+    "api/*.js": {
+      "runtime": "@vercel/node@20"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
+  ]
 }
