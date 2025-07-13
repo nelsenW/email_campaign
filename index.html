@@ -886,23 +886,19 @@ Sincerely,
                 
                 for (const recipientEmail of recipientEmails) {
                     try {
+                        // Create FormData instead of JSON for Formspree
+                        const formData = new FormData();
+                        formData.append('_to', recipientEmail);
+                        formData.append('_replyto', senderEmail);
+                        formData.append('_subject', decodedSubject);
+                        formData.append('message', decodedBody);
+                        formData.append('name', senderName);
+                        formData.append('email', senderEmail);
+                        formData.append('recipient_type', recipientType);
+
                         const response = await fetch(`https://formspree.io/f/${FORMSPREE_FORM_ID}`, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                // This tells Formspree to send TO this email, not notify you
-                                _to: recipientEmail,
-                                _replyto: senderEmail,
-                                _subject: decodedSubject,
-                                message: decodedBody,
-                                name: senderName,
-                                email: senderEmail,
-                                recipient_type: recipientType,
-                                // Formspree will send this message TO the _to address
-                                _format: 'plain'
-                            })
+                            body: formData // Send as FormData, not JSON
                         });
 
                         if (response.ok) {
