@@ -1,0 +1,12 @@
+{
+  "name": "signature-campaign",
+  "version": "1.0.0",
+  "description": "Email campaign with signature counter",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.25.1"
+  }
+}

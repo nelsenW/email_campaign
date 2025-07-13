@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Disabled Staff - Contact Officials</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .signature-counter {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 2px solid #28a745;
+        }
+        
+        .counter-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            margin-top: 8px;
+            font-size: 1.1em;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .counter-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 5px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .counter-text {
+            font-size: 1.2em;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .counter-subtext {
+            font-size: 1em;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #28a745;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 2.2em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .form-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .recipient-section {
+            margin-bottom: 30px;
+        }
+        
+        .recipient-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .recipient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .recipient-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .recipient-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .recipient-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .recipient-card h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        
+        .recipient-card p {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+        
+        .generate-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .generate-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .generate-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .email-output {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .email-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .email-item h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .email-details {
+            margin-bottom: 15px;
+        }
+        
+        .email-details strong {
+            color: #2c3e50;
+        }
+        
+        .email-body {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .send-email-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        
+        .send-email-button:hover {
+            background: #218838;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+                    @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .recipient-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .counter-number {
+                font-size: 2.5em;
+            }
+            
+            .counter-text {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="signature-counter">
+            <div class="counter-content">
+                <div class="counter-number" id="signatureCount">0</div>
+                <div class="counter-text">people have taken action</div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0 / 100 signatures</div>
+                </div>
+                <div class="counter-subtext">Help us reach our goal to contact officials about Policy 6301</div>
+            </div>
+        </div>
+        
+        <div class="header">
+            <h1>Support Disabled Staff Rights</h1>
+            <p>Contact local officials about Policy 6301 in Watauga County Schools</p>
+        </div>
+        
+        <div class="instructions">
+            <h3>How it works:</h3>
+            <ol>
+                <li>Fill out your information below</li>
+                <li>Select which officials you want to contact</li>
+                <li>Click "Generate My Emails" to create personalized messages</li>
+                <li>Use the "Send Email" buttons to open your email client with pre-filled messages</li>
+            </ol>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-group">
+                <label for="name">Your Full Name *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="affiliation">Your Affiliation/Town (optional)</label>
+                <input type="text" id="affiliation" name="affiliation" placeholder="e.g., Boone Resident, Parent, etc.">
+            </div>
+            
+            <div class="form-group">
+                <label for="personal_note">Personal Note (optional)</label>
+                <textarea id="personal_note" name="personal_note" placeholder="Add a personal story or additional context..."></textarea>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="recipient-section">
+                <h3>Select Officials to Contact:</h3>
+                <div class="recipient-grid">
+                    <div class="recipient-card" onclick="toggleRecipient('school_board')">
+                        <h4>School Board Members</h4>
+                        <p>Watauga County School Board</p>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="school_board" name="recipients" value="school_board">
+                            <label for="school_board">Contact School Board</label>
+                        </div>
+                    </div>
+                    
+                    <div class="recipient-card" onclick="toggleRecipient('commissioners')">
+                        <h4>County Commissioners</h4>
+                        <p>Watauga County Board of Commissioners</p>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="commissioners" name="recipients" value="commissioners">
+                            <label for="commissioners">Contact Commissioners</label>
+                        </div>
+                    </div>
+                    
+                    <div class="recipient-card" onclick="toggleRecipient('representatives')">
+                        <h4>State & Federal Representatives</h4>
+                        <p>State and Federal Officials</p>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="representatives" name="recipients" value="representatives">
+                            <label for="representatives">Contact Representatives</label>
+                        </div>
+                    </div>
+                    
+                    <div class="recipient-card" onclick="toggleRecipient('mayor')">
+                        <h4>Mayor of Boone</h4>
+                        <p>Mayor Futrelle</p>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="mayor" name="recipients" value="mayor">
+                            <label for="mayor">Contact Mayor</label>
+                        </div>
+                    </div>
+                    
+                    <div class="recipient-card" onclick="toggleRecipient('media')">
+                        <h4>Local Media</h4>
+                        <p>Watauga Democrat</p>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="media" name="recipients" value="media">
+                            <label for="media">Contact Media</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="generate-button" onclick="generateEmails()">
+                Generate My Emails
+            </button>
+        </div>
+        
+        <div class="email-output" id="emailOutput">
+            <h3>Your Personalized Emails</h3>
+            <div id="emailList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - UPDATE THIS WITH YOUR VERCEL DOMAIN
+        const API_BASE = 'https://your-site.vercel.app/api'; // Replace with your actual Vercel URL
+        
+        let currentData = { count: 0, goal: 100, percentage: 0 };
+        
+        // Initialize signature counter
+        async function initializeCounter() {
+            try {
+                const response = await fetch(`${API_BASE}/get-count`);
+                if (response.ok) {
+                    currentData = await response.json();
+                    updateCounterDisplay(currentData);
+                } else {
+                    console.error('Failed to fetch count');
+                    // Fallback to local display
+                    updateCounterDisplay({ count: 0, goal: 100, percentage: 0 });
+                }
+            } catch (error) {
+                console.error('Error fetching count:', error);
+                // Fallback to local display
+                updateCounterDisplay({ count: 0, goal: 100, percentage: 0 });
+            }
+        }
+        
+        function updateCounterDisplay(data) {
+            document.getElementById('signatureCount').textContent = data.count;
+            document.getElementById('progressText').textContent = `${data.count} / ${data.goal} signatures`;
+            document.getElementById('progressFill').style.width = `${data.percentage}%`;
+            
+            // Update the subtext based on progress
+            const subtext = document.querySelector('.counter-subtext');
+            if (data.percentage >= 100) {
+                subtext.textContent = '🎉 Goal reached! Keep the momentum going!';
+            } else if (data.percentage >= 75) {
+                subtext.textContent = `Almost there! Only ${data.goal - data.count} more needed!`;
+            } else {
+                subtext.textContent = 'Help us reach our goal to contact officials about Policy 6301';
+            }
+        }
+        
+        async function incrementSignatureCount() {
+            try {
+                // Show loading state
+                const button = document.querySelector('.generate-button');
+                const originalText = button.textContent;
+                button.innerHTML = originalText + '<span class="loading-spinner"></span>';
+                button.disabled = true;
+                
+                const response = await fetch(`${API_BASE}/increment-count`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const newData = await response.json();
+                    animateCounterUpdate(currentData, newData);
+                    currentData = newData;
+                } else if (response.status === 429) {
+                    // Rate limited - user already counted recently
+                    console.log('User already counted recently');
+                } else {
+                    console.error('Failed to increment count');
+                }
+            } catch (error) {
+                console.error('Error incrementing count:', error);
+            } finally {
+                // Restore button state
+                const button = document.querySelector('.generate-button');
+                button.textContent = 'Generate My Emails';
+                button.disabled = false;
+            }
+        }
+        
+        function animateCounterUpdate(oldData, newData) {
+            const counterElement = document.getElementById('signatureCount');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            // Animate number
+            animateNumber(counterElement, oldData.count, newData.count);
+            
+            // Animate progress bar
+            setTimeout(() => {
+                progressFill.style.width = `${newData.percentage}%`;
+                progressText.textContent = `${newData.count} / ${newData.goal} signatures`;
+            }, 300);
+            
+            // Update subtext
+            setTimeout(() => {
+                updateCounterDisplay(newData);
+            }, 800);
+        }
+        
+        function animateNumber(element, from, to) {
+            const duration = 1000;
+            const steps = 30;
+            const increment = (to - from) / steps;
+            let current = from;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= to) {
+                    element.textContent = to;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, duration / steps);
+        }
+        
+        // Initialize counter when page loads
+        document.addEventListener('DOMContentLoaded', initializeCounter);
+
+        const emailTemplates = {
+            school_board: {
+                subject: "Policy 6301 Harms Disabled Staff — Reconsider Now",
+                to: "childersg@wataugaschools.org,fenwickj@wataugaschools.org,hegea@wataugaschools.org,idola@wataugaschools.org,lloydc@wataugaschools.org",
+                body: `Dear Board Member,
+
+I am writing to urge you to reconsider the implementation of Policy 6301, which is actively harming disabled staff members in Watauga County Schools. Since the fall, employees with longstanding medical exemptions from bus driving have been pressured to resign or apply for unrelated "hard to fill" jobs. These individuals are not underperforming—they simply require accommodations they are legally entitled to.
+
+You and your colleagues have publicly identified staff retention as one of Watauga's most pressing challenges. Yet Policy 6301 sends the message that driving a bus matters more than years of service. This policy creates a culture of fear and devalues the contributions of disabled staff members.
+
+[PERSONAL_NOTE]
+
+According to the EEOC, the federal agency responsible for enforcing the ADA, "The ADA does not permit employers to apply a blanket rule refusing to provide any accommodations to individuals with disabilities." And, "Undue hardship must be based on actual facts specific to the individual accommodation and employer, not speculative or hypothetical hardships." (ADA, Rehabilitation Act, 29 CFR Part 1630, 29 CFR Part 1614)
+
+Yet Dr. Blanton's statement in his letter to all classified staff this year that the district "cannot grant medical exemptions" is a blanket denial. It bypasses the legally required interactive process, which the EEOC says must occur case-by-case.
+
+I urge you to:
+- Reconsider how Policy 6301 is being applied
+- Ensure WCS leadership follows ADA and EEOC guidance
+- Restore trust in this district by protecting—not punishing—disabled employees
+
+Sincerely,
+[NAME]
+[AFFILIATION]`
+            },
+            commissioners: {
+                subject: "Request for Oversight: WCS School Board Policy 6301 Violates Disability Rights",
+                to: "Braxton.Eggers@watgov.org,Todd.Castle@watgov.org,Emily.Greene@watgov.org,Tim.Hodges@watgov.org,Ronnie.Marsh@watgov.org",
+                body: `Dear Commissioner,
+
+I'm writing to request your oversight regarding Watauga County Schools Policy 6301, which is currently being used to force out staff with disabilities. Multiple employees with longstanding medical exemptions from bus driving have been told they must resign or accept reassignment, despite strong performance in their roles.
+
+Meanwhile, staff in "hard to fill" positions or new hires have been granted exemptions from bus driving without issue. This inconsistency reveals not a staffing crisis, but a targeted pattern of discrimination.
+
+[PERSONAL_NOTE]
+
+This implementation appears to violate the Americans with Disabilities Act (ADA). The EEOC, the federal agency responsible for enforcing the ADA, states clearly, "The ADA does not permit employers to apply a blanket rule refusing to provide any accommodations to individuals with disabilities." It also says that, "Undue hardship must be based on actual facts... not speculative or hypothetical hardships." WCS's current stance, as laid out in Dr. Blanton's letter to classified staff earlier this year, relies on blanket claims of undue burden that are neither individualized nor evidence-based. That is not legal and not acceptable.
+
+I urge the Board of Commissioners to:
+- Investigate whether Policy 6301 is being used to bypass federal disability rights
+- Request a full explanation from WCS of how ADA and EEOC guidance is being followed
+- Publicly support staff members who are being denied fair treatment
+
+This is a matter of legal compliance, moral responsibility, and basic human dignity. I hope you will act swiftly.
+
+Sincerely,
+[NAME]
+[AFFILIATION]`
+            },
+            representatives: {
+                subject: "Civil Rights Violations in Watauga County Schools",
+                to: "Ray.Pickett@ncleg.gov,Ralph.Hise@ncleg.gov,communications@dpi.nc.gov",
+                body: `Dear Representative,
+
+I am writing to raise serious concerns about potential ADA violations in Watauga County, North Carolina, where Policy 6301 is being used to target disabled public school staff.
+
+Long-serving employees with documented medical disabilities are being pushed out or told to apply for unrelated jobs because they cannot drive a school bus. In contrast, other staff are receiving driving exemptions without consequence.
+
+This disparate treatment not only violates basic fairness, but likely contravenes the ADA. The EEOC, which enforces the ADA, states, "Employers must provide accommodations based on the individual needs of the employee." And, "Blanket policies that deny all accommodations are inconsistent with the ADA."
+
+Watauga's approach—issuing blanket denials based on a generalized claim of "undue burden"—fails to meet this standard. The law requires a case-by-case interactive process, not administrative shortcuts.
+
+[PERSONAL_NOTE]
+
+I urge your office to:
+- Investigate the situation in Watauga County
+- Speak publicly to support disabled educators
+- Ensure that state and federal disability protections are being upheld
+
+Thank you for your attention to this urgent civil rights matter. I would be happy to provide further information or documentation upon request.
+
+Sincerely,
+[NAME]
+[AFFILIATION]`
+            },
+            mayor: {
+                subject: "Town Leadership Needed: WCS School Board Policy 6301 Is Hurting Disabled School Staff",
+                to: "mayor@townofboone.net",
+                body: `Dear Mayor Futrelle,
+
+As a resident of Boone, I am writing to express concern about Policy 6301, which is currently being used by Watauga County Schools to push out disabled staff members who previously received medical accommodations.
+
+Experienced educators and staff with certified medical conditions are being told they must either drive a bus or leave their jobs. At the same time, other employees—without disabilities—are being quietly exempted from driving.
+
+The EEOC guidance on the ADA is clear, saying, "The ADA does not permit blanket policies that deny all accommodations." And, "Undue hardship must be proven with actual facts, not speculation." Watauga's approach—issuing blanket denials based on a generalized claim of "undue burden"—fails to meet this standard. The law requires a case-by-case interactive process, not administrative shortcuts.
+
+[PERSONAL_NOTE]
+
+As mayor, I ask that you speak out and engage with the school board to ensure that all Boone residents—including disabled school staff—are treated with fairness and dignity.
+
+Thank you for your leadership.
+
+Sincerely,
+[NAME]
+[AFFILIATION]`
+            },
+            media: {
+                subject: "WCS School Board Policy 6301 Undermines Disability Rights",
+                to: "moss.brennan@wataugademocrat.com",
+                body: `Dear Editor,
+
+I'm writing to express concern about Watauga County Schools' Policy 6301 and its impact on disabled staff members.
+
+Reports show that long-serving school employees with documented medical conditions have been told to resign or apply for unrelated jobs because they cannot drive a bus. Meanwhile, others without medical limitations have been allowed to remain in their positions with no driving required.
+
+This is not just unfair—it may be illegal. The EEOC clearly states that:
+
+"Employers may not rely on blanket policies to deny disability accommodations."
+
+Policy 6301 appears to prioritize administrative convenience over legal compliance and basic decency. If Watauga County wants to attract and retain great staff, it cannot treat disabled employees as disposable.
+
+[PERSONAL_NOTE]
+
+I urge the Watauga Democrat to continue investigating this issue and elevating the voices of those affected.
+
+Sincerely,
+[NAME]
+[AFFILIATION]`
+            }
+        };
+
+        function toggleRecipient(recipientId) {
+            const checkbox = document.getElementById(recipientId);
+            const card = checkbox.closest('.recipient-card');
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+
+        function generateEmails() {
+            const name = document.getElementById('name').value.trim();
+            const affiliation = document.getElementById('affiliation').value.trim();
+            const personalNote = document.getElementById('personal_note').value.trim();
+            
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            const selectedRecipients = document.querySelectorAll('input[name="recipients"]:checked');
+            
+            if (selectedRecipients.length === 0) {
+                alert('Please select at least one recipient');
+                return;
+            }
+            
+            const emailList = document.getElementById('emailList');
+            emailList.innerHTML = '';
+            
+            selectedRecipients.forEach(recipient => {
+                const template = emailTemplates[recipient.value];
+                let body = template.body;
+                
+                // Replace placeholders
+                body = body.replace('[NAME]', name);
+                body = body.replace('[AFFILIATION]', affiliation || 'Concerned Citizen');
+                
+                if (personalNote) {
+                    body = body.replace('[PERSONAL_NOTE]', personalNote + '\n');
+                } else {
+                    // Remove the personal note section entirely, including extra line breaks
+                    body = body.replace(/\[PERSONAL_NOTE\]\s*\n\s*/g, '');
+                }
+                
+                // Create email item
+                const emailItem = document.createElement('div');
+                emailItem.className = 'email-item';
+                emailItem.innerHTML = `
+                    <h4>${getRecipientName(recipient.value)}</h4>
+                    <div class="email-details">
+                        <strong>Subject:</strong> ${template.subject}<br>
+                        <strong>To:</strong> ${template.to}
+                    </div>
+                    <div class="email-body">${body.replace(/\n/g, '<br>')}</div>
+                    <button class="send-email-button" onclick="sendEmail('${template.to}', '${encodeURIComponent(template.subject)}', '${encodeURIComponent(body)}')">
+                        Send Email
+                    </button>
+                `;
+                emailList.appendChild(emailItem);
+            });
+            
+            document.getElementById('emailOutput').style.display = 'block';
+            document.getElementById('emailOutput').scrollIntoView({ behavior: 'smooth' });
+            
+            // Increment signature count when someone generates emails
+            incrementSignatureCount();
+        }
+
+        function getRecipientName(recipientType) {
+            const names = {
+                'school_board': 'School Board Members',
+                'commissioners': 'County Commissioners',
+                'representatives': 'State & Federal Representatives',
+                'mayor': 'Mayor of Boone',
+                'media': 'Watauga Democrat'
+            };
+            return names[recipientType] || 'Unknown';
+        }
+
+        function sendEmail(to, subject, body) {
+            const mailtoLink = `mailto:${to}?subject=${subject}&body=${body}`;
+            window.location.href = mailtoLink;
+        }
+    </script>
+</body>
+</html>
