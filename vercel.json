@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/get-count.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/increment-count.js", 
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/get-count",
+      "dest": "/api/get-count.js"
+    },
+    {
+      "src": "/api/increment-count",
+      "dest": "/api/increment-count.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}{
+  "functions": {
+    "api/get-count.js": {
+      "runtime": "@vercel/node@20"
+    },
+    "api/increment-count.js": {
+      "runtime": "@vercel/node@20"
+    }
+  }
+}
