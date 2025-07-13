@@ -1,7 +1,10 @@
 {
   "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
+    "api/get-count.js": {
+      "runtime": "@vercel/node@18"
+    },
+    "api/increment-count.js": {
+      "runtime": "@vercel/node@18"
     }
   }
 }
