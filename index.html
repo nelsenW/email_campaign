@@ -881,11 +881,17 @@ Sincerely,
                 const decodedSubject = decodeURIComponent(subject);
                 const decodedBody = decodeURIComponent(body);
 
+                console.log('Sending to emails:', recipientEmails);
+                console.log('Subject:', decodedSubject);
+
                 // Send separate email to each recipient for better delivery
                 let successCount = 0;
+                let errors = [];
                 
                 for (const recipientEmail of recipientEmails) {
                     try {
+                        console.log(`Sending to: ${recipientEmail}`);
+                        
                         // Create FormData instead of JSON for Formspree
                         const formData = new FormData();
                         formData.append('_to', recipientEmail);
@@ -901,11 +907,19 @@ Sincerely,
                             body: formData // Send as FormData, not JSON
                         });
 
+                        console.log(`Response status for ${recipientEmail}:`, response.status);
+                        
                         if (response.ok) {
                             successCount++;
+                            console.log(`Success sending to ${recipientEmail}`);
+                        } else {
+                            const errorText = await response.text();
+                            console.error(`Failed to send to ${recipientEmail}:`, response.status, errorText);
+                            errors.push(`${recipientEmail}: ${response.status}`);
                         }
                     } catch (error) {
-                        console.error(`Failed to send to ${recipientEmail}:`, error);
+                        console.error(`Error sending to ${recipientEmail}:`, error);
+                        errors.push(`${recipientEmail}: ${error.message}`);
                     }
                 }
 
@@ -916,19 +930,23 @@ Sincerely,
                     
                     showSuccessNotification(recipientType, successCount);
                 } else {
-                    throw new Error('Failed to send to any recipients');
+                    // Show detailed error info
+                    console.error('All sends failed. Errors:', errors);
+                    throw new Error(`Failed to send to any recipients. Errors: ${errors.join(', ')}`);
                 }
 
             } catch (error) {
                 console.error('Error sending email:', error);
                 
-                // Show error and restore button
-                alert('❌ Failed to send email. Please try again or use the backup mailto option.');
+                // Show error and restore button with more details
+                alert(`❌ Failed to send email: ${error.message}\n\nCheck browser console for details. Try mailto fallback?`);
                 button.innerHTML = originalText;
                 button.disabled = false;
                 
                 // Offer mailto fallback
-                showMailtoFallback(recipientType, subject, body, senderEmail);
+                if (confirm('Would you like to try the mailto fallback instead?')) {
+                    showMailtoFallback(recipientType, subject, body, senderEmail);
+                }
             }
         }
 
