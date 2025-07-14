@@ -246,20 +246,35 @@ function generateEmails() {
     const affiliation = document.getElementById('affiliation').value.trim();
     const personalNote = document.getElementById('personal_note').value.trim();
     
+    // Clear any existing error states
+    clearFieldErrors();
+    
+    // Validate required fields
+    let hasErrors = false;
+    
     if (!name) {
-        alert('Please enter your name');
-        return;
+        showFieldError('name', 'Please enter your name');
+        hasErrors = true;
     }
     
     if (!email) {
-        alert('Please enter your email address');
-        return;
+        showFieldError('email', 'Please enter your email address');
+        hasErrors = true;
     }
     
     const selectedRecipients = document.querySelectorAll('input[name="recipients"]:checked');
     
     if (selectedRecipients.length === 0) {
-        alert('Please select at least one recipient');
+        showRecipientError();
+        hasErrors = true;
+    }
+    
+    if (hasErrors) {
+        // Scroll to the first error field
+        const firstError = document.querySelector('.field-error');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         return;
     }
     
@@ -456,6 +471,52 @@ function showSuccessState(button, originalText) {
         badge.textContent = '✓ Sent';
         header.appendChild(badge);
     }
+}
+
+// Validation helper functions
+function clearFieldErrors() {
+    // Remove error states from all fields
+    document.querySelectorAll('.field-error').forEach(field => {
+        field.classList.remove('field-error');
+    });
+    
+    // Remove error messages
+    document.querySelectorAll('.error-message').forEach(message => {
+        message.remove();
+    });
+    
+    // Remove recipient error
+    const recipientSection = document.querySelector('.recipient-section');
+    if (recipientSection) {
+        recipientSection.classList.remove('recipient-error');
+    }
+}
+
+function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const formGroup = field.closest('.form-group');
+    
+    // Add error class to field
+    field.classList.add('field-error');
+    
+    // Create and add error message
+    const errorMessage = document.createElement('div');
+    errorMessage.className = 'error-message';
+    errorMessage.textContent = message;
+    
+    formGroup.appendChild(errorMessage);
+}
+
+function showRecipientError() {
+    const recipientSection = document.querySelector('.recipient-section');
+    recipientSection.classList.add('recipient-error');
+    
+    // Create and add error message
+    const errorMessage = document.createElement('div');
+    errorMessage.className = 'error-message recipient-error-message';
+    errorMessage.textContent = 'Please select at least one recipient';
+    
+    recipientSection.appendChild(errorMessage);
 }
 
 // Success notification
