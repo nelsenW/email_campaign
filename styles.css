@@ -266,12 +266,34 @@ textarea {
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.email-item.email-sent {
+    background: #f0f8f4;
+    border: 2px solid #28a745;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
 }
 
 .email-item h4 {
     color: #2c3e50;
     margin-bottom: 15px;
     font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sent-badge {
+    background: #28a745;
+    color: white;
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
 }
 
 .email-details {
@@ -294,6 +316,11 @@ textarea {
     line-height: 1.5;
 }
 
+.email-sent .email-body {
+    background: #f8fff9;
+    border-color: #28a745;
+}
+
 .send-email-button {
     background: #28a745;
     color: white;
@@ -309,6 +336,15 @@ textarea {
 
 .send-email-button:hover {
     background: #218838;
+}
+
+.send-email-button.email-sent {
+    background: #28a745;
+    cursor: default;
+}
+
+.send-email-button.email-sent:hover {
+    background: #28a745;
 }
 
 .instructions {
@@ -351,5 +387,11 @@ textarea {
     
     .counter-text {
         font-size: 1.1em;
+    }
+    
+    .email-item h4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
     }
 }

@@ -437,16 +437,25 @@ function sendEmailViaWebmail(recipientType, subject, body, senderName, senderEma
 
 // Helper function to show success state on button
 function showSuccessState(button, originalText) {
-    button.innerHTML = '✅ Email Composer Opened';
+    const emailItem = button.closest('.email-item');
+    
+    // Mark button as sent permanently
+    button.innerHTML = '✅ Email Sent';
     button.style.backgroundColor = '#28a745';
     button.disabled = true;
+    button.classList.add('email-sent');
     
-    // Reset button after 3 seconds
-    setTimeout(() => {
-        button.innerHTML = originalText;
-        button.style.backgroundColor = '';
-        button.disabled = false;
-    }, 3000);
+    // Add visual indicator to the entire email item
+    emailItem.classList.add('email-sent');
+    
+    // Add a "sent" badge to the email item header
+    const header = emailItem.querySelector('h4');
+    if (!header.querySelector('.sent-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'sent-badge';
+        badge.textContent = '✓ Sent';
+        header.appendChild(badge);
+    }
 }
 
 // Success notification
