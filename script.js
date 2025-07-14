@@ -292,15 +292,32 @@ function generateEmails() {
                 <strong>Subject:</strong> ${template.subject}
             </div>
             <div class="email-body">${body.replace(/\n/g, '<br>')}</div>
-            <button class="send-email-button" onclick="sendEmailViaWebmail('${recipient.value}', '${encodeURIComponent(template.subject)}', '${encodeURIComponent(body)}', '${name}', '${email}')">
+            <button class="send-email-button" data-recipient="${recipient.value}" data-subject="${template.subject}" data-name="${name}" data-email="${email}">
                 📧 Send Email
             </button>
         `;
+        
+        // Store the email body in a data attribute safely
+        const button = emailItem.querySelector('.send-email-button');
+        button.emailBody = body;
         emailList.appendChild(emailItem);
     });
     
     document.getElementById('emailOutput').style.display = 'block';
     document.getElementById('emailOutput').scrollIntoView({ behavior: 'smooth' });
+    
+    // Add event listeners to all send email buttons
+    document.querySelectorAll('.send-email-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const recipientType = this.dataset.recipient;
+            const subject = this.dataset.subject;
+            const body = this.emailBody;
+            const senderName = this.dataset.name;
+            const senderEmail = this.dataset.email;
+            
+            sendEmailViaWebmail(recipientType, subject, body, senderName, senderEmail, this);
+        });
+    });
     
     // Increment signature count when someone generates emails
     incrementSignatureCount();
@@ -379,14 +396,11 @@ function getComposeUrl(provider, to, subject, body) {
 }
 
 // Main email sending function
-function sendEmailViaWebmail(recipientType, subject, body, senderName, senderEmail) {
-    const button = event.target;
+function sendEmailViaWebmail(recipientType, subject, body, senderName, senderEmail, button) {
     const originalText = button.innerHTML;
     
     try {
         const emails = getRecipientEmailAddresses(recipientType);
-        const decodedSubject = decodeURIComponent(subject);
-        const decodedBody = decodeURIComponent(body);
         
         // For multiple recipients, we'll use Gmail as default since it handles multiple recipients well
         // Users can manually adjust if they prefer a different provider
@@ -401,7 +415,7 @@ function sendEmailViaWebmail(recipientType, subject, body, senderName, senderEma
             }
         }
         
-        const composeUrl = getComposeUrl(provider, emailList, decodedSubject, decodedBody);
+        const composeUrl = getComposeUrl(provider, emailList, subject, body);
         
         // Open the compose window
         window.open(composeUrl, '_blank');
