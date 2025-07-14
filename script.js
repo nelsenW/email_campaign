@@ -106,38 +106,6 @@ document.addEventListener('DOMContentLoaded', initializeCounter);
 
 // Email templates
 const emailTemplates = {
-    test_email: {
-        subject: "TEST: Policy 6301 Email Campaign",
-        to: "", // Will be filled with user's email
-        body: `This is a TEST email for the Policy 6301 campaign.
-
-Hi [NAME],
-
-This is what your email to officials will look like:
-
------
-
-Dear Official,
-
-I am writing to urge you to reconsider the implementation of Policy 6301, which is actively harming disabled staff members in Watauga County Schools. Since the fall, employees with longstanding medical exemptions from bus driving have been pressured to resign or apply for unrelated "hard to fill" jobs.
-
-[PERSONAL_NOTE]
-
-According to the EEOC, the federal agency responsible for enforcing the ADA, "The ADA does not permit employers to apply a blanket rule refusing to provide any accommodations to individuals with disabilities."
-
-I urge you to reconsider how Policy 6301 is being applied and ensure WCS leadership follows ADA and EEOC guidance.
-
-Sincerely,
-[NAME]
-[AFFILIATION]
-
------
-
-If this looks good, go back and select the actual officials to contact!
-
-Best regards,
-[NAME]`
-    },
     school_board: {
         subject: "Policy 6301 Harms Disabled Staff — Reconsider Now",
         to: "childersg@wataugaschools.org,fenwickj@wataugaschools.org,hegea@wataugaschools.org,idola@wataugaschools.org,lloydc@wataugaschools.org",
@@ -283,6 +251,11 @@ function generateEmails() {
         return;
     }
     
+    if (!email) {
+        alert('Please enter your email address');
+        return;
+    }
+    
     const selectedRecipients = document.querySelectorAll('input[name="recipients"]:checked');
     
     if (selectedRecipients.length === 0) {
@@ -297,15 +270,6 @@ function generateEmails() {
         const template = emailTemplates[recipient.value];
         let body = template.body;
         let toAddress = template.to;
-        
-        // For test email, use user's email
-        if (recipient.value === 'test_email') {
-            if (!email) {
-                alert('Please enter your email address to send a test email');
-                return;
-            }
-            toAddress = email;
-        }
         
         // Replace placeholders
         body = body.replace(/\[NAME\]/g, name);
@@ -338,17 +302,13 @@ function generateEmails() {
     document.getElementById('emailOutput').style.display = 'block';
     document.getElementById('emailOutput').scrollIntoView({ behavior: 'smooth' });
     
-    // Increment signature count when someone generates emails (but not for test emails)
-    const hasRealRecipients = Array.from(selectedRecipients).some(r => r.value !== 'test_email');
-    if (hasRealRecipients) {
-        incrementSignatureCount();
-    }
+    // Increment signature count when someone generates emails
+    incrementSignatureCount();
 }
 
 // Helper functions for recipient information
 function getRecipientName(recipientType) {
     const names = {
-        'test_email': '🧪 Test Email (to yourself)',
         'school_board': 'School Board Members',
         'commissioners': 'County Commissioners',
         'representatives': 'State & Federal Representatives',
@@ -360,7 +320,6 @@ function getRecipientName(recipientType) {
 
 function getRecipientEmails(recipientType) {
     const emails = {
-        'test_email': 'Your email address',
         'school_board': 'childersg@wataugaschools.org, fenwickj@wataugaschools.org, hegea@wataugaschools.org, idola@wataugaschools.org, lloydc@wataugaschools.org',
         'commissioners': 'Braxton.Eggers@watgov.org, Todd.Castle@watgov.org, Emily.Greene@watgov.org, Tim.Hodges@watgov.org, Ronnie.Marsh@watgov.org',
         'representatives': 'Ray.Pickett@ncleg.gov, Ralph.Hise@ncleg.gov, communications@dpi.nc.gov',
@@ -372,7 +331,6 @@ function getRecipientEmails(recipientType) {
 
 function getRecipientEmailAddresses(recipientType) {
     const emailLists = {
-        'test_email': [], // Will be filled dynamically
         'school_board': ['childersg@wataugaschools.org', 'fenwickj@wataugaschools.org', 'hegea@wataugaschools.org', 'idola@wataugaschools.org', 'lloydc@wataugaschools.org'],
         'commissioners': ['Braxton.Eggers@watgov.org', 'Todd.Castle@watgov.org', 'Emily.Greene@watgov.org', 'Tim.Hodges@watgov.org', 'Ronnie.Marsh@watgov.org'],
         'representatives': ['Ray.Pickett@ncleg.gov', 'Ralph.Hise@ncleg.gov', 'communications@dpi.nc.gov'],
@@ -429,21 +387,6 @@ function sendEmailViaWebmail(recipientType, subject, body, senderName, senderEma
         const emails = getRecipientEmailAddresses(recipientType);
         const decodedSubject = decodeURIComponent(subject);
         const decodedBody = decodeURIComponent(body);
-        
-        // Handle test email
-        if (recipientType === 'test_email') {
-            if (!senderEmail) {
-                alert('Please enter your email address');
-                return;
-            }
-            
-            const provider = getEmailProvider(senderEmail);
-            const composeUrl = getComposeUrl(provider, senderEmail, decodedSubject, decodedBody);
-            
-            window.open(composeUrl, '_blank');
-            showSuccessState(button, originalText);
-            return;
-        }
         
         // For multiple recipients, we'll use Gmail as default since it handles multiple recipients well
         // Users can manually adjust if they prefer a different provider
